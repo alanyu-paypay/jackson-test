@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import java.lang.reflect.Field;
+import org.example.Data.CarWithBuilderJacksonized;
 import org.example.Data.CarWithBuilderNoArgsConstructorGetter;
 import org.example.Data.CarWithBuilderOnly;
 import org.example.Data.CarWithConstructor;
@@ -136,9 +137,26 @@ public class DeserializeTest {
         // Deserialize
         var actual = mapper.readValue("{\"brand\":\"toyota\"}", CarWithBuilderNoArgsConstructorGetter.class);
 
-        // Read the value of the private field
+        // Read the value
         String brand = actual.getBrand();
         assertEquals("toyota", brand);
     }
 
+    @Test
+    void Deserialize_Should_Pass_For_Builder_With_Jacksonized() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+
+        // Deserialize
+        var actual = mapper.readValue("{\"brand\":\"toyota\"}", CarWithBuilderJacksonized.class);
+
+        // Get the private field
+        Field privateField = CarWithBuilderJacksonized.class.getDeclaredField("brand");
+
+        // Make the private field accessible
+        privateField.setAccessible(true);
+
+        // Read the value of the private field
+        String brand = (String) privateField.get(actual);
+        assertEquals("toyota", brand);
+    }
 }
